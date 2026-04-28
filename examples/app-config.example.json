@@ -1,0 +1,23 @@
+{
+  "appiumHost": "127.0.0.1",
+  "appiumPort": 4723,
+  "appiumPath": "/",
+  "deviceName": "Android Device",
+  "apkPath": "C:\\apps\\your-app.apk",
+  "appPackage": "com.example.app",
+  "appActivity": ".MainActivity",
+  "noReset": false,
+  "autoGrantPermissions": true,
+  "postLaunchWaitMs": 5000,
+  "finalWaitMs": 3000,
+  "screenshotLabel": "after-run",
+  "actions": [
+    {
+      "type": "dismissPopups"
+    },
+    {
+      "type": "screenshot",
+      "name": "home"
+    }
+  ]
+}

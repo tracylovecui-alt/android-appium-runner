@@ -1,0 +1,29 @@
+[
+  {
+    "type": "dismissPopups"
+  },
+  {
+    "type": "input",
+    "selector": "id=com.example.app:id/username",
+    "value": "demo_user",
+    "clearFirst": true
+  },
+  {
+    "type": "input",
+    "selector": "id=com.example.app:id/password",
+    "value": "demo_password",
+    "clearFirst": true
+  },
+  {
+    "type": "click",
+    "selector": "id=com.example.app:id/login"
+  },
+  {
+    "type": "wait",
+    "ms": 5000
+  },
+  {
+    "type": "screenshot",
+    "name": "after-login"
+  }
+]

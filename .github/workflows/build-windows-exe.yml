@@ -1,0 +1,41 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check project
+        run: npm run check
+
+      - name: Build portable EXE
+        run: npm run build:exe
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-exe
+          path: release/**/*
+          if-no-files-found: error
+          retention-days: 14

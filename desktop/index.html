@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Android Appium Runner</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="panel panel-form">
+        <div class="hero">
+          <p class="eyebrow">Windows Desktop Runner</p>
+          <h1>Android App 自动化执行器</h1>
+          <p class="subtitle">
+            用桌面界面管理 APK、连接参数和动作脚本，再交给 Appium 自动执行。
+          </p>
+        </div>
+
+        <form id="config-form">
+          <section class="card">
+            <h2>基础配置</h2>
+
+            <label>
+              <span>APK 路径</span>
+              <div class="row">
+                <input id="apkPath" name="apkPath" type="text" />
+                <button id="pick-apk" type="button" class="secondary">选择 APK</button>
+              </div>
+            </label>
+
+            <div class="grid two">
+              <label>
+                <span>App Package</span>
+                <input id="appPackage" name="appPackage" type="text" />
+              </label>
+              <label>
+                <span>App Activity</span>
+                <input id="appActivity" name="appActivity" type="text" />
+              </label>
+            </div>
+
+            <div class="grid three">
+              <label>
+                <span>Appium Host</span>
+                <input id="appiumHost" name="appiumHost" type="text" />
+              </label>
+              <label>
+                <span>Appium Port</span>
+                <input id="appiumPort" name="appiumPort" type="number" />
+              </label>
+              <label>
+                <span>Device Name</span>
+                <input id="deviceName" name="deviceName" type="text" />
+              </label>
+            </div>
+
+            <div class="grid three">
+              <label>
+                <span>启动等待(ms)</span>
+                <input id="postLaunchWaitMs" name="postLaunchWaitMs" type="number" />
+              </label>
+              <label>
+                <span>结束等待(ms)</span>
+                <input id="finalWaitMs" name="finalWaitMs" type="number" />
+              </label>
+              <label>
+                <span>最终截图名</span>
+                <input id="screenshotLabel" name="screenshotLabel" type="text" />
+              </label>
+            </div>
+
+            <div class="checks">
+              <label class="checkbox">
+                <input id="noReset" name="noReset" type="checkbox" />
+                <span>保留 App 状态</span>
+              </label>
+              <label class="checkbox">
+                <input id="autoGrantPermissions" name="autoGrantPermissions" type="checkbox" />
+                <span>自动授予权限</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <h2>动作脚本 JSON</h2>
+              <button id="use-example" type="button" class="secondary">填入示例</button>
+            </div>
+            <p class="hint">
+              支持 `dismissPopups`、`input`、`click`、`wait`、`screenshot`、`back`
+            </p>
+            <textarea id="actions" name="actions" spellcheck="false"></textarea>
+          </section>
+
+          <section class="card action-bar">
+            <button id="save-config" type="button" class="secondary">保存本地配置</button>
+            <button id="run-button" type="submit" class="primary">开始执行</button>
+          </section>
+        </form>
+      </aside>
+
+      <main class="panel panel-log">
+        <section class="card log-card">
+          <div class="section-head">
+            <h2>运行日志</h2>
+            <button id="clear-log" type="button" class="secondary">清空日志</button>
+          </div>
+          <pre id="log-output"></pre>
+        </section>
+      </main>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

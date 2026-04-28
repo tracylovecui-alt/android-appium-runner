@@ -1,0 +1,260 @@
+:root {
+  color-scheme: light;
+  --bg: #f5efe5;
+  --panel: rgba(255, 251, 245, 0.88);
+  --panel-strong: #fffaf2;
+  --line: rgba(104, 73, 44, 0.14);
+  --text: #2e241c;
+  --muted: #74624e;
+  --accent: #c95f32;
+  --accent-dark: #99431f;
+  --shadow: 0 18px 42px rgba(96, 63, 33, 0.12);
+  --radius: 22px;
+  --font-title: "Segoe UI Semibold", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(252, 212, 153, 0.55), transparent 28%),
+    radial-gradient(circle at top right, rgba(211, 119, 85, 0.18), transparent 26%),
+    linear-gradient(160deg, #f8f2e8 0%, #f2eadf 52%, #efe6da 100%);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: minmax(540px, 1.1fr) minmax(360px, 0.9fr);
+  gap: 24px;
+  padding: 24px;
+}
+
+.panel {
+  min-height: calc(100vh - 48px);
+}
+
+.panel-form,
+.panel-log {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hero {
+  padding: 8px 6px 0;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-family: var(--font-title);
+}
+
+h1 {
+  font-size: 34px;
+  line-height: 1.08;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+.subtitle,
+.hint {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.card {
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  margin-top: 14px;
+}
+
+label:first-child {
+  margin-top: 0;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(127, 92, 59, 0.18);
+  background: rgba(255, 252, 247, 0.92);
+  color: var(--text);
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+input:focus,
+textarea:focus {
+  border-color: rgba(201, 95, 50, 0.66);
+  box-shadow: 0 0 0 4px rgba(201, 95, 50, 0.12);
+}
+
+textarea {
+  min-height: 290px;
+  resize: vertical;
+  font-family: "Consolas", "SFMono-Regular", monospace;
+  line-height: 1.55;
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+}
+
+.grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.checks {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.checkbox {
+  margin-top: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.action-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+button.primary {
+  background: linear-gradient(135deg, #cd6739 0%, #ae4318 100%);
+  color: #fffaf5;
+  box-shadow: 0 14px 28px rgba(166, 78, 42, 0.25);
+}
+
+button.secondary {
+  background: rgba(255, 251, 245, 0.96);
+  color: var(--text);
+  border: 1px solid rgba(113, 84, 54, 0.14);
+}
+
+.log-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#log-output {
+  flex: 1;
+  margin: 16px 0 0;
+  min-height: 0;
+  max-height: calc(100vh - 160px);
+  overflow: auto;
+  padding: 18px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(50, 39, 31, 0.97), rgba(34, 27, 22, 0.99)),
+    linear-gradient(120deg, rgba(214, 106, 63, 0.08), transparent 60%);
+  color: #f6ead7;
+  font-family: "Consolas", "SFMono-Regular", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 1100px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    min-height: auto;
+  }
+
+  #log-output {
+    max-height: 420px;
+  }
+}
