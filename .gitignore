@@ -1,6 +1,7 @@
 node_modules/
 artifacts/
 release/
+release-download/
 dist/
 out/
 npm-debug.log*
