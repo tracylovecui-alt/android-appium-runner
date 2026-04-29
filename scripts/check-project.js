@@ -3,7 +3,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const rootDir = path.resolve(__dirname, '..');
-const ignoreDirs = new Set(['.git', 'artifacts', 'node_modules', 'release', 'dist', 'out']);
+const ignoreDirs = new Set(['.git', 'artifacts', 'node_modules', 'release', 'release-download', 'dist', 'out']);
 const requiredFiles = [
   'package.json',
   'README.md',
@@ -13,6 +13,7 @@ const requiredFiles = [
   'docs/RESPONSIBLE_USE.md',
   'docs/SETUP.md',
   'docs/TROUBLESHOOTING.md',
+  'docs/USAGE.md',
   'desktop/index.html',
   'desktop/main.js',
   'desktop/preload.js',

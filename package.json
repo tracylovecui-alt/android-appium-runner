@@ -1,6 +1,6 @@
 {
   "name": "android-appium-runner",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Minimal Appium starter for automating an Android APK on Windows.",
   "main": "desktop/main.js",
@@ -19,7 +19,7 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.codex.androidappiumstarter",
+    "appId": "com.codex.androidappiumrunner",
     "productName": "Android Appium Runner",
     "files": [
       "config/**/*",

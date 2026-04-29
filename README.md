@@ -61,6 +61,7 @@ npm run build:windows
 ## 文档
 
 - [环境和运行说明](docs/SETUP.md)
+- [怎么使用桌面程序](docs/USAGE.md)
 - [动作脚本格式](docs/ACTIONS.md)
 - [打包 EXE](docs/BUILD.md)
 - [排查问题](docs/TROUBLESHOOTING.md)

@@ -3,7 +3,7 @@ const path = require('path');
 const { remote } = require('webdriverio');
 const DEFAULT_CONFIG = require('../config/default-config.json');
 
-const ARTIFACT_DIR = path.resolve(__dirname, '..', 'artifacts');
+const DEFAULT_ARTIFACT_DIR = path.resolve(__dirname, '..', 'artifacts');
 
 function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) {
@@ -27,9 +27,9 @@ function createLogger(log) {
   };
 }
 
-async function saveScreenshot(driver, name, logLine) {
-  ensureDir(ARTIFACT_DIR);
-  const filePath = path.join(ARTIFACT_DIR, `${timestamp()}-${name}.png`);
+async function saveScreenshot(driver, name, artifactDir, logLine) {
+  ensureDir(artifactDir);
+  const filePath = path.join(artifactDir, `${timestamp()}-${name}.png`);
   await driver.saveScreenshot(filePath);
   logLine(`截图已保存: ${filePath}`);
 }
@@ -99,7 +99,7 @@ function validateConfig(config) {
   }
 }
 
-async function runAction(driver, action, logLine) {
+async function runAction(driver, action, artifactDir, logLine) {
   const timeout = Number(action.timeoutMs) || 20000;
 
   switch (action.type) {
@@ -128,7 +128,7 @@ async function runAction(driver, action, logLine) {
       );
       return;
     case 'screenshot':
-      await saveScreenshot(driver, action.name || 'step', logLine);
+      await saveScreenshot(driver, action.name || 'step', artifactDir, logLine);
       return;
     case 'back':
       logLine('执行返回');
@@ -143,7 +143,11 @@ async function runAction(driver, action, logLine) {
 }
 
 async function runAndroidAutomation(userConfig = {}, hooks = {}) {
-  ensureDir(ARTIFACT_DIR);
+  const artifactDir = hooks.artifactDir
+    || process.env.ANDROID_APPIUM_RUNNER_ARTIFACT_DIR
+    || DEFAULT_ARTIFACT_DIR;
+
+  ensureDir(artifactDir);
 
   const config = normalizeConfig(userConfig);
   validateConfig(config);
@@ -179,7 +183,7 @@ async function runAndroidAutomation(userConfig = {}, hooks = {}) {
     }
 
     for (const action of config.actions) {
-      await runAction(driver, action, logLine);
+      await runAction(driver, action, artifactDir, logLine);
     }
 
     if (Number(config.finalWaitMs) > 0) {
@@ -187,13 +191,13 @@ async function runAndroidAutomation(userConfig = {}, hooks = {}) {
       await driver.pause(Number(config.finalWaitMs));
     }
 
-    await saveScreenshot(driver, config.screenshotLabel || 'after-run', logLine);
+    await saveScreenshot(driver, config.screenshotLabel || 'after-run', artifactDir, logLine);
     logLine('自动化执行完成');
   } catch (error) {
     logLine(`自动化执行失败: ${error.message}`);
     if (driver) {
       try {
-        await saveScreenshot(driver, 'error', logLine);
+        await saveScreenshot(driver, 'error', artifactDir, logLine);
       } catch (screenshotError) {
         logLine(`错误截图保存失败: ${screenshotError.message}`);
       }
@@ -209,5 +213,6 @@ async function runAndroidAutomation(userConfig = {}, hooks = {}) {
 
 module.exports = {
   DEFAULT_CONFIG,
+  DEFAULT_ARTIFACT_DIR,
   runAndroidAutomation
 };

@@ -15,6 +15,13 @@
           <p class="subtitle">
             用桌面界面管理 APK、连接参数和动作脚本，再交给 Appium 自动执行。
           </p>
+          <div class="toolbar">
+            <button id="check-system" type="button" class="secondary">检查环境</button>
+            <button id="detect-activity" type="button" class="secondary">获取当前 Activity</button>
+            <button id="import-config" type="button" class="secondary">导入配置</button>
+            <button id="export-config" type="button" class="secondary">导出配置</button>
+            <button id="reset-config" type="button" class="secondary">恢复默认</button>
+          </div>
         </div>
 
         <form id="config-form">
@@ -50,12 +57,16 @@
                 <input id="appiumPort" name="appiumPort" type="number" />
               </label>
               <label>
-                <span>Device Name</span>
-                <input id="deviceName" name="deviceName" type="text" />
+                <span>Appium Path</span>
+                <input id="appiumPath" name="appiumPath" type="text" />
               </label>
             </div>
 
             <div class="grid three">
+              <label>
+                <span>Device Name</span>
+                <input id="deviceName" name="deviceName" type="text" />
+              </label>
               <label>
                 <span>启动等待(ms)</span>
                 <input id="postLaunchWaitMs" name="postLaunchWaitMs" type="number" />
@@ -101,10 +112,23 @@
       </aside>
 
       <main class="panel panel-log">
+        <section class="card status-card">
+          <div class="section-head">
+            <h2>环境状态</h2>
+            <button id="open-artifacts" type="button" class="secondary">打开截图目录</button>
+          </div>
+          <div id="status-list" class="status-list">
+            <div class="empty-state">还没有检查环境</div>
+          </div>
+        </section>
+
         <section class="card log-card">
           <div class="section-head">
             <h2>运行日志</h2>
-            <button id="clear-log" type="button" class="secondary">清空日志</button>
+            <div class="button-group">
+              <button id="copy-log" type="button" class="secondary">复制日志</button>
+              <button id="clear-log" type="button" class="secondary">清空日志</button>
+            </div>
           </div>
           <pre id="log-output"></pre>
         </section>
