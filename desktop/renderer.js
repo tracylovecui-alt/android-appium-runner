@@ -3,6 +3,8 @@ const STORAGE_KEY = 'android-appium-runner-config';
 const form = document.querySelector('#config-form');
 const pickApkButton = document.querySelector('#pick-apk');
 const useExampleButton = document.querySelector('#use-example');
+const addActionButton = document.querySelector('#add-action');
+const addBasicFlowButton = document.querySelector('#add-basic-flow');
 const saveConfigButton = document.querySelector('#save-config');
 const clearLogButton = document.querySelector('#clear-log');
 const copyLogButton = document.querySelector('#copy-log');
@@ -15,8 +17,26 @@ const exportConfigButton = document.querySelector('#export-config');
 const resetConfigButton = document.querySelector('#reset-config');
 const openArtifactsButton = document.querySelector('#open-artifacts');
 const statusList = document.querySelector('#status-list');
+const actionBuilder = document.querySelector('#action-builder');
+const actionsTextArea = document.querySelector('#actions');
 
 let defaultConfigCache = null;
+let isSyncingActions = false;
+
+const ACTION_TYPES = [
+  { value: 'dismissPopups', label: '处理弹窗' },
+  { value: 'click', label: '点击' },
+  { value: 'input', label: '输入' },
+  { value: 'wait', label: '等待' },
+  { value: 'screenshot', label: '截图' },
+  { value: 'back', label: '返回' }
+];
+
+const BASIC_FLOW = [
+  { type: 'dismissPopups' },
+  { type: 'wait', ms: 3000 },
+  { type: 'screenshot', name: 'home' }
+];
 
 function appendLog(message) {
   logOutput.textContent += `${message}\n`;
@@ -29,7 +49,8 @@ function setRunningState(running) {
 }
 
 function parseActions() {
-  const actions = JSON.parse(document.querySelector('#actions').value);
+  syncActionsFromBuilder();
+  const actions = JSON.parse(actionsTextArea.value);
   if (!Array.isArray(actions)) {
     throw new Error('动作脚本必须是 JSON 数组');
   }
@@ -68,7 +89,7 @@ function populateForm(config) {
   document.querySelector('#screenshotLabel').value = config.screenshotLabel || 'after-run';
   document.querySelector('#noReset').checked = Boolean(config.noReset);
   document.querySelector('#autoGrantPermissions').checked = Boolean(config.autoGrantPermissions);
-  document.querySelector('#actions').value = JSON.stringify(config.actions || [], null, 2);
+  renderActionBuilder(config.actions || []);
 }
 
 function renderStatus(checks) {
@@ -94,6 +115,226 @@ function renderStatus(checks) {
       </div>
     `;
   }).join('');
+}
+
+function createAction(type = 'click') {
+  switch (type) {
+    case 'dismissPopups':
+      return { type: 'dismissPopups' };
+    case 'input':
+      return { type: 'input', selector: '', value: '', clearFirst: true };
+    case 'wait':
+      return { type: 'wait', ms: 2000 };
+    case 'screenshot':
+      return { type: 'screenshot', name: 'step' };
+    case 'back':
+      return { type: 'back' };
+    case 'click':
+    default:
+      return { type: 'click', selector: '' };
+  }
+}
+
+function normalizeActionForType(type, previous = {}) {
+  const action = createAction(type);
+
+  if ('selector' in action && previous.selector) {
+    action.selector = previous.selector;
+  }
+  if ('value' in action && previous.value) {
+    action.value = previous.value;
+  }
+  if ('name' in action && previous.name) {
+    action.name = previous.name;
+  }
+  if ('ms' in action && previous.ms) {
+    action.ms = previous.ms;
+  }
+  if ('clearFirst' in action && typeof previous.clearFirst === 'boolean') {
+    action.clearFirst = previous.clearFirst;
+  }
+
+  return action;
+}
+
+function actionTypeLabel(type) {
+  const item = ACTION_TYPES.find((option) => option.value === type);
+  return item ? item.label : type;
+}
+
+function fieldValue(action, key, fallback = '') {
+  return action[key] === undefined || action[key] === null ? fallback : String(action[key]);
+}
+
+function renderActionFields(action) {
+  switch (action.type) {
+    case 'click':
+      return `
+        <label>
+          <span>选择器</span>
+          <input data-action-field="selector" type="text" value="${escapeAttr(fieldValue(action, 'selector'))}" placeholder="id=com.example.app:id/button" />
+        </label>
+      `;
+    case 'input':
+      return `
+        <label>
+          <span>选择器</span>
+          <input data-action-field="selector" type="text" value="${escapeAttr(fieldValue(action, 'selector'))}" placeholder="id=com.example.app:id/input" />
+        </label>
+        <label>
+          <span>输入内容</span>
+          <input data-action-field="value" type="text" value="${escapeAttr(fieldValue(action, 'value'))}" placeholder="要输入的文字" />
+        </label>
+        <label class="inline-check">
+          <input data-action-field="clearFirst" type="checkbox" ${action.clearFirst ? 'checked' : ''} />
+          <span>输入前清空</span>
+        </label>
+      `;
+    case 'wait':
+      return `
+        <label>
+          <span>等待毫秒</span>
+          <input data-action-field="ms" type="number" value="${escapeAttr(fieldValue(action, 'ms', 2000))}" />
+        </label>
+      `;
+    case 'screenshot':
+      return `
+        <label>
+          <span>截图名称</span>
+          <input data-action-field="name" type="text" value="${escapeAttr(fieldValue(action, 'name', 'step'))}" />
+        </label>
+      `;
+    case 'dismissPopups':
+    case 'back':
+    default:
+      return '<div class="action-note">这个动作不需要额外填写</div>';
+  }
+}
+
+function escapeAttr(value) {
+  return String(value).replace(/[<>&"]/g, (char) => {
+    return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[char];
+  });
+}
+
+function renderActionBuilder(actions) {
+  isSyncingActions = true;
+  actionsTextArea.value = JSON.stringify(actions, null, 2);
+  actionBuilder.innerHTML = '';
+
+  if (!actions.length) {
+    actionBuilder.innerHTML = '<div class="empty-state">还没有动作，点“添加动作”开始</div>';
+    isSyncingActions = false;
+    return;
+  }
+
+  actions.forEach((action, index) => {
+    const row = document.createElement('div');
+    row.className = 'action-row';
+    row.dataset.index = String(index);
+    row.dataset.actionType = action.type;
+    row.innerHTML = `
+      <div class="action-row-head">
+        <strong>${index + 1}. ${actionTypeLabel(action.type)}</strong>
+        <div class="button-group">
+          <button type="button" class="secondary compact" data-action-command="up">上移</button>
+          <button type="button" class="secondary compact" data-action-command="down">下移</button>
+          <button type="button" class="secondary compact danger" data-action-command="remove">删除</button>
+        </div>
+      </div>
+      <div class="action-grid">
+        <label>
+          <span>动作类型</span>
+          <select data-action-field="type">
+            ${ACTION_TYPES.map((option) => `
+              <option value="${option.value}" ${option.value === action.type ? 'selected' : ''}>${option.label}</option>
+            `).join('')}
+          </select>
+        </label>
+        ${renderActionFields(action)}
+      </div>
+    `;
+    actionBuilder.appendChild(row);
+  });
+
+  isSyncingActions = false;
+}
+
+function readActionRow(row) {
+  const originalType = row.dataset.actionType;
+  const type = row.querySelector('[data-action-field="type"]').value;
+  const action = type === originalType
+    ? createAction(type)
+    : normalizeActionForType(type, readVisibleFields(row));
+
+  for (const input of row.querySelectorAll('[data-action-field]')) {
+    const field = input.dataset.actionField;
+    if (field === 'type') {
+      continue;
+    }
+
+    if (input.type === 'checkbox') {
+      action[field] = input.checked;
+      continue;
+    }
+
+    if (field === 'ms' || field === 'timeoutMs') {
+      action[field] = Number(input.value) || 0;
+      continue;
+    }
+
+    action[field] = input.value;
+  }
+
+  return action;
+}
+
+function readVisibleFields(row) {
+  const values = {};
+  for (const input of row.querySelectorAll('[data-action-field]')) {
+    const field = input.dataset.actionField;
+    if (field === 'type') {
+      continue;
+    }
+
+    if (input.type === 'checkbox') {
+      values[field] = input.checked;
+      continue;
+    }
+
+    if (field === 'ms' || field === 'timeoutMs') {
+      values[field] = Number(input.value) || 0;
+      continue;
+    }
+
+    values[field] = input.value;
+  }
+
+  return values;
+}
+
+function readActionsFromBuilder() {
+  return Array.from(actionBuilder.querySelectorAll('.action-row')).map(readActionRow);
+}
+
+function syncActionsFromBuilder() {
+  if (isSyncingActions) {
+    return;
+  }
+
+  const actions = readActionsFromBuilder();
+  actionsTextArea.value = JSON.stringify(actions, null, 2);
+}
+
+function syncBuilderFromJson() {
+  try {
+    const actions = JSON.parse(actionsTextArea.value || '[]');
+    if (Array.isArray(actions)) {
+      renderActionBuilder(actions);
+    }
+  } catch {
+    // Keep the builder untouched until the JSON is valid again.
+  }
 }
 
 function parsePackageActivity(details) {
@@ -221,7 +462,17 @@ resetConfigButton.addEventListener('click', async () => {
 
 useExampleButton.addEventListener('click', async () => {
   const defaults = await window.appBridge.getDefaultConfig();
-  document.querySelector('#actions').value = JSON.stringify(defaults.actions, null, 2);
+  renderActionBuilder(defaults.actions);
+});
+
+addActionButton.addEventListener('click', () => {
+  const actions = readActionsFromBuilder();
+  actions.push(createAction('click'));
+  renderActionBuilder(actions);
+});
+
+addBasicFlowButton.addEventListener('click', () => {
+  renderActionBuilder(BASIC_FLOW);
 });
 
 saveConfigButton.addEventListener('click', () => {
@@ -277,6 +528,55 @@ form.addEventListener('submit', async (event) => {
 
   appendLog(`任务执行失败: ${result.error}`);
 });
+
+actionBuilder.addEventListener('input', (event) => {
+  const field = event.target.dataset.actionField;
+  if (field === 'type') {
+    const actions = readActionsFromBuilder();
+    renderActionBuilder(actions);
+    return;
+  }
+
+  syncActionsFromBuilder();
+});
+
+actionBuilder.addEventListener('change', (event) => {
+  const field = event.target.dataset.actionField;
+  if (field === 'type') {
+    const actions = readActionsFromBuilder();
+    renderActionBuilder(actions);
+    return;
+  }
+
+  syncActionsFromBuilder();
+});
+
+actionBuilder.addEventListener('click', (event) => {
+  const command = event.target.dataset.actionCommand;
+  if (!command) {
+    return;
+  }
+
+  const row = event.target.closest('.action-row');
+  const index = Number(row.dataset.index);
+  const actions = readActionsFromBuilder();
+
+  if (command === 'remove') {
+    actions.splice(index, 1);
+  }
+
+  if (command === 'up' && index > 0) {
+    [actions[index - 1], actions[index]] = [actions[index], actions[index - 1]];
+  }
+
+  if (command === 'down' && index < actions.length - 1) {
+    [actions[index + 1], actions[index]] = [actions[index], actions[index + 1]];
+  }
+
+  renderActionBuilder(actions);
+});
+
+actionsTextArea.addEventListener('input', syncBuilderFromJson);
 
 window.appBridge.onLog((line) => {
   appendLog(line);

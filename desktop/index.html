@@ -95,13 +95,22 @@
 
           <section class="card">
             <div class="section-head">
-              <h2>动作脚本 JSON</h2>
-              <button id="use-example" type="button" class="secondary">填入示例</button>
+              <h2>动作流程</h2>
+              <div class="button-group">
+                <button id="add-action" type="button" class="secondary">添加动作</button>
+                <button id="add-basic-flow" type="button" class="secondary">测试流程</button>
+                <button id="use-example" type="button" class="secondary">登录示例</button>
+              </div>
             </div>
             <p class="hint">
-              支持 `dismissPopups`、`input`、`click`、`wait`、`screenshot`、`back`
+              先用简单模式添加动作；需要精细调整时再打开高级 JSON。
             </p>
-            <textarea id="actions" name="actions" spellcheck="false"></textarea>
+            <div id="action-builder" class="action-builder"></div>
+
+            <details class="advanced-json">
+              <summary>高级 JSON</summary>
+              <textarea id="actions" name="actions" spellcheck="false"></textarea>
+            </details>
           </section>
 
           <section class="card action-bar">

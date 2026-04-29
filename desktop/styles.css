@@ -125,7 +125,8 @@ button {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   padding: 12px 14px;
   border-radius: var(--radius);
@@ -137,7 +138,8 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   border-color: rgba(37, 99, 235, 0.7);
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
@@ -160,6 +162,71 @@ textarea {
 
 .grid.three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.action-builder {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.action-row {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
+  padding: 14px;
+}
+
+.action-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.action-grid label {
+  margin-top: 0;
+}
+
+.inline-check {
+  flex-direction: row;
+  align-items: center;
+  align-self: end;
+  margin-bottom: 12px;
+}
+
+.inline-check input {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+}
+
+.action-note {
+  display: flex;
+  align-items: center;
+  min-height: 43px;
+  color: var(--muted);
+}
+
+.advanced-json {
+  margin-top: 14px;
+}
+
+.advanced-json summary {
+  cursor: pointer;
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+
+.advanced-json textarea {
+  margin-top: 12px;
 }
 
 .row {
@@ -228,6 +295,15 @@ button.secondary {
   background: var(--panel-strong);
   color: var(--text);
   border: 1px solid var(--line);
+}
+
+button.compact {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+button.danger {
+  color: var(--danger);
 }
 
 .status-card {
@@ -320,5 +396,9 @@ button.secondary {
 
   #log-output {
     max-height: 420px;
+  }
+
+  .action-grid {
+    grid-template-columns: 1fr;
   }
 }
